@@ -36,7 +36,13 @@ while True:
 
     # user selected 'x' or 'X' to exit the program
     if choice == "X":
-        break # tells the program to exit the loop
+        # save the to-do list to a file
+        #**********THIS CODE ****************
+        with open("todo_list.txt", "w") as file:
+            for todo in todo_list:
+                file.write(f"{todo}\n")
+        #************************************
+        break
 
     # user selected something else
     print("Invalid choice")
