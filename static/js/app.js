@@ -30,4 +30,12 @@ document.addEventListener("DOMContentLoaded", function() {
     recognition.onerror = function(event) {
         nameInput.value = "Error occurred in recognition: " + event.error;
     };
+
+    window.handleClick = function(event, cb) {
+        event.stopPropagation();
+        const rootUrl = window.location.origin;
+        const cbId = cb.id;
+        const cbChecked = cb.checked;
+        window.location.href = `${rootUrl}/completed/${cbId}/${cbChecked}`;
+    };
 });

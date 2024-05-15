@@ -5,6 +5,7 @@ from recommendation_engine import RecommendationEngine
 from sqlalchemy import Integer, String, Boolean
 import json
 import os
+from context_processors import inject_current_date
 
 app = Flask(__name__)
 
@@ -15,6 +16,10 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 with app.app_context():
     db.create_all()
+
+@app.context_processor
+def inject_common_variables():
+    return inject_current_date()
 
 @app.before_request
 def load_data_to_g():
@@ -140,6 +145,21 @@ async def recommend(id, refresh=False):
         return
 
     return render_template('index.html')
+
+@app.route('/completed/<int:id>/<complete>', methods=['GET'])
+def completed(id, complete):
+    g.selectedTab = Tab.NONE
+    g.todo = Todo.query.filter_by(id=id).first()
+    if (g.todo != None and complete == "true"):
+        g.todo.completed = True
+    elif (g.todo != None and complete == "false"):
+        g.todo.completed = False
+
+    #update todo in the database
+    db.session.add(g.todo)
+    db.session.commit()
+    #
+    return redirect(url_for('index'))    
 
 if __name__ == "__main__":
     recommendations = []   
