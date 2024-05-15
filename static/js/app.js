@@ -129,4 +129,31 @@ document.addEventListener("DOMContentLoaded", function () {
             clearHighlight();
         });
     });
+
+    //override the default behavior of the nav links so that we can 
+    //turn on a spinner control when the user clicks on the recommendations tab
+    const navLinks = document.getElementsByClassName('nav-link');
+    Array.from(navLinks).forEach((navLink) => {
+        navLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            const currentPath = this.getAttribute('href');
+            const rootUrl = window.location.origin;
+
+            //turn on the spinner control if the user clicks on the recommendations tab
+            if (this.getAttribute('id') === 'recommendations-tab') {
+                var recommend_pane = document.querySelector("span[id='recommendation-spinner']");
+                if (recommend_pane) {
+                    recommend_pane.removeAttribute('hidden');
+                }
+            }
+            window.location.href = rootUrl + currentPath;
+        });
+    });
+
+    window.handleRefresh = function() {
+        var recommend_pane = document.querySelector("span[id='recommendation-spinner']");
+        if (recommend_pane) {
+            recommend_pane.removeAttribute('hidden');
+        } 
+    };
 });
