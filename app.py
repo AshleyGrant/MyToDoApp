@@ -1,5 +1,12 @@
 todo_list = []
 
+try:
+    with open("todo_list.txt", "r") as file:
+        for line in file:
+            todo_list.append(line.strip())
+except FileNotFoundError:
+    print("No saved items found")
+
 # continue to loop and display menu until the user selects to exit the program
 while True:
     print() # add a couple of blank lines
