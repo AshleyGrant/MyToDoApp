@@ -42,3 +42,7 @@ h1 {
 .highlighted-item {
     background-color: #f2f2f2;
 }
+
+.limit-text {
+    color: white;
+}
