@@ -26,6 +26,14 @@ def add_todo():
     save_todo_list()
     return redirect(url_for("index"))
 
+@app.route("/remove", methods=["POST"])
+def remove_todo():
+    item_number = int(request.form["item_number"])
+    if 0 < item_number <= len(todo_list):
+        todo_list.pop(item_number - 1)
+        save_todo_list()
+    return redirect(url_for("index"))
+
 def save_todo_list():
     with open(todo_file, "w") as file:
         for todo in todo_list:

@@ -15,5 +15,10 @@
         <input type="text" name="todo">
         <button type="submit">Add</button>
     </form>
+    <form action="/remove" method="post">
+        <label for="item_number">Remove task number:</label>
+        <input type="number" name="item_number" min="1">
+        <button type="submit">Remove</button>
+    </form>
 </body>
 </html>
