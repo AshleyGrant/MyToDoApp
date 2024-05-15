@@ -1,42 +1,42 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     const nameInput = document.getElementById("todo");
-    
+
     //add javascript to support speech recognition for the todo input field
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
     recognition.lang = "en-US";
     recognition.interimResults = false;
-    
-    window.captureVoice = function() {
+
+    window.captureVoice = function () {
         recognition.start();
         nameInput.value = "Your microphone is activated, speak to record voice";
     };
 
-    recognition.onresult = function(event) {
+    recognition.onresult = function (event) {
         const transcript = event.results[0][0].transcript;
         const recognizedText = transcript.endsWith('.') ? transcript.slice(0, -1) : transcript;
         nameInput.value = recognizedText;
-    
+
         const addButton = document.querySelector("button[id='addButton']");
         addButton.disabled = false;
     };
 
-    recognition.onspeechend = function() {
+    recognition.onspeechend = function () {
         recognition.stop();
     };
 
-    recognition.onnomatch = function(event) {
+    recognition.onnomatch = function (event) {
         nameInput.value = "I didn't recognize that prompt.";
     };
 
-    recognition.onerror = function(event) {
+    recognition.onerror = function (event) {
         nameInput.value = "Error occurred in recognition: " + event.error;
     };
 
     const HIGHLIGHTEDITEM = 'highlighted-item';
     const currentPath = window.location.pathname;
-    
+
     // Set the active tab based on the URL
     const setActiveTab = (tabId) => {
         const tabElement = document.getElementById(tabId);
@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function() {
             tabElement.classList.add('active');
         }
     };
-    
+
     switch (true) {
         case currentPath.includes('/edit'):
             setActiveTab('edit-tab');
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function() {
         default:
             break;
     }
-        
+
     const highlightedItemId = localStorage.getItem(HIGHLIGHTEDITEM);
     console.log('highlightedItemId', highlightedItemId);
     if (highlightedItemId) {
@@ -70,19 +70,19 @@ document.addEventListener("DOMContentLoaded", function() {
             highlightedItem.classList.add(HIGHLIGHTEDITEM);
         }
     }
-    
-    window.clearHighlight = function() {
+
+    window.clearHighlight = function () {
         localStorage.removeItem(HIGHLIGHTEDITEM);
     };
-    
-    window.showDetails = function(li) {
+
+    window.showDetails = function (li) {
         highlight(li);
         const rootUrl = window.location.origin;
         const dataId = li.getAttribute('data-id');
         window.location.href = `${rootUrl}/details/${dataId}`;
     };
-    
-    window.handleClick = function(event, cb) {
+
+    window.handleClick = function (event, cb) {
         event.stopPropagation();
         const rootUrl = window.location.origin;
         const cbId = cb.id;
@@ -90,9 +90,9 @@ document.addEventListener("DOMContentLoaded", function() {
         window.location.href = `${rootUrl}/completed/${cbId}/${cbChecked}`;
         clearHighlight();
     };
-    
-    
-    window.highlight = function(element) {
+
+
+    window.highlight = function (element) {
         const highlightedItemId = localStorage.getItem(HIGHLIGHTEDITEM);
         if (highlightedItemId) {
             const highlightedItem = document.getElementById(highlightedItemId);
@@ -100,15 +100,33 @@ document.addEventListener("DOMContentLoaded", function() {
                 highlightedItem.classList.remove(HIGHLIGHTEDITEM);
             }
         }
-    
-            const closestListItem = element.closest('li');
-            closestListItem.classList.add(HIGHLIGHTEDITEM);
-    
-            localStorage.setItem(HIGHLIGHTEDITEM, closestListItem.id);
+
+        const closestListItem = element.closest('li');
+        closestListItem.classList.add(HIGHLIGHTEDITEM);
+
+        localStorage.setItem(HIGHLIGHTEDITEM, closestListItem.id);
     };
 
-    nameInput.addEventListener("keyup", function() {
+    nameInput.addEventListener("keyup", function () {
         const addButton = document.querySelector("button[id='addButton']");
         addButton.disabled = this.value.trim() === "";
+    });
+
+    const myModal = document.getElementById('confirmModal')
+    const deleteButtons = document.getElementsByClassName('delete-btn');
+    Array.from(deleteButtons).forEach((deleteButton) => {
+        deleteButton.addEventListener('click', function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+            const url = this.getAttribute('data-url');
+            document.getElementById('deleteLink').setAttribute('href', url);
+            const taskname_paragraph = document.querySelector("p[id='taskName']");
+            const taskname = this.getAttribute('data-taskname');
+            taskname_paragraph.textContent = taskname;
+            myModal.addEventListener('shown.bs.modal', () => {
+                deleteButton.focus()
+            })
+            clearHighlight();
+        });
     });
 });
