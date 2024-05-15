@@ -23,10 +23,11 @@ class RecommendationEngine:
         else:
             raise Exception("OpenAI not implemented")
         
-    async def get_recommendations(self, keyword_phrase):
+    async def get_recommendations(self, keyword_phrase, previous_links_str=None):
         prompt = f"""Please return 5 recommendations based on the input string: '{keyword_phrase}' using correct JSON syntax that contains a title and a hyperlink back to the supporting website. RETURN ONLY JSON AND NOTHING ELSE"""
         system_prompt = """You are an administrative assistant bot who is good at giving 
-            recommendations for to-do items that need to be completed by referencing website links that can provide assistance to helping complete the to-do item. 
+            recommendations for tasks that need to be done by referencing website links that can provide 
+            assistance to helping complete the task. 
 
             If there are not any recommendations simply return an empty collection. 
 
@@ -37,11 +38,14 @@ class RecommendationEngine:
             {"title": "...", "link": "..."}]
             """
             
+        if previous_links_str is not None:
+            prompt = prompt + f". EXCLUDE the following links from your recommendations: {previous_links_str}"  
+
         message_text = [{"role":"system","content":system_prompt},
                         {"role":"user","content":prompt},]
 
         response = self.client.chat.completions.create(
-                        model = self.deployment,
+                        model= self.deployment,
                         messages = message_text,
                         temperature=0.14,
                         max_tokens=800,

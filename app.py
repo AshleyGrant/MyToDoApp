@@ -44,13 +44,13 @@ def remove_todo(id):
     db.session.commit()
     return redirect(url_for("index"))
 
-# Show AI recommendations
 @app.route('/recommend/<int:id>', methods=['GET'])
-async def recommend(id):
+@app.route('/recommend/<int:id>/<refresh>', methods=['GET'])
+async def recommend(id, refresh=False):
     recommendation_engine = RecommendationEngine()
     g.todo = db.session.query(Todo).filter_by(id=id).first()
 
-    if g.todo:
+    if g.todo and not refresh:
         try:
             #attempt to load any saved recommendation from the DB
             if g.todo.recommendations_json is not None:
@@ -59,7 +59,15 @@ async def recommend(id):
         except ValueError as e:
             print("Error:", e)
 
-    g.todo.recommendations = await recommendation_engine.get_recommendations(g.todo.name)
+    previous_links_str = None
+    if refresh:
+        g.todo.recommendations = json.loads(g.todo.recommendations_json)
+        # Extract links
+        links = [item["link"] for item in g.todo.recommendations]
+        # Convert list of links to a single string
+        previous_links_str = ", ".join(links)
+
+    g.todo.recommendations = await recommendation_engine.get_recommendations(g.todo.name, previous_links_str)
         
     # Save the recommendations to the database
     try:
